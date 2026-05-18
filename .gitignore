@@ -1,0 +1,6 @@
+archive
+output_parquet
+venv
+
+.env
+.venv
