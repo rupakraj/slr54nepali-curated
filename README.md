@@ -6,7 +6,12 @@ Curated release of the [OpenSLR SLR54 Nepali](https://openslr.trmal.net/resource
 The original source, [Large Nepali ASR training data set(SLR54)](https://www.openslr.org/54/)
 , does not provide a recommended train/validation/test split. This makes it difficult to fairly evaluate and compare work that uses this dataset.
 
-The purpose of this repository is to share a standardized dataset split and provide a Hugging Face–compatible version of the dataset.
+The purpose of this repository is to share a proper dataset split and convert the dataset to a Hugging Face–compatible version of the dataset.
+
+## Where to find the data?
+This repo only hosts the `{split}.tsv` files. The audio resouce are hosted in hugging face.
+
+Hugging face: [rughimire/slr54nepali-curated](https://huggingface.co/datasets/rughimire/slr54nepali-curated)
 
 
 ## Dataset summary
@@ -15,41 +20,48 @@ The purpose of this repository is to share a standardized dataset split and prov
 - **Files included:** `train.tsv`, `valid.tsv`, `test.tsv` (tab-separated: file_id, speaker_id, transcript)
 
 
-Local layout expected by the scripts
-- TSV files in the root folder or in the directory passed with `--tsv-dir`
-- Audio files at `<root>/<split>/<speaker_id>/<file_id>.wav`
+## How to use?
 
-## Quick start
+Todo
 
-1. Install dependencies:
+## How to create Hugging Face Dataset?
+
+1. Install dependencies
 
 ```bash
+python -m venv venv
+source ./venv/bin/active
 pip install -r requirements.txt
 ```
 
-`.env` file
+The logic and other details should be in `.env` file.
 
 ```bash
 # .env
-WAV_ROOT_PATH=<path to the wav file>
-HF_TOKEN=="<your_token>"
+WAV_ROOT_PATH="<path to wav files>"
+PARQUET_SHARD_SIZE_MB=1024
+HF_REPO_ID=rughimire/slr54nepali-curated
+HF_TOKEN=<your_token>
 ```
+__note__: The script will source the `.env` file.
 
-2. Convert TSV + audio into parquet shards:
+2. Convert TSV + audio into parquet shards
 
 ```bash
 python create_parquet.py
 ```
 
-3. Push the parquet dataset to the Hub (replace `USERNAME/REPO_NAME`):
+3. Push the parquet dataset to the Hub
 
 ```bash
-python push_to_hf.py --repo-id USERNAME/slr54-nepali-curated --token $HF_TOKEN --parquet-dir parquet
+python push_to_hf.py
 ```
 
 Script details
-- `create_parquet.py` embeds audio bytes into parquet files so the uploaded dataset is independent of source file paths.
-- `push_to_hf.py` loads the parquet files and calls `push_to_hub()`.
+- `create_parquet.py` stores each audio example as a `{bytes, path}` struct so the dataset stays independent of source paths.
+- `push_to_hf.py` casts the `audio` column to `datasets.Audio` before pushing, which is what enables playback in the Hugging Face dataset viewer.
+
+If the dataset viewer still shows raw bytes, re-upload after regenerating the parquet shards with the updated script and make sure the `audio` column is present.
 
 
 ## Original Dataset
