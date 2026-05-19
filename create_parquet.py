@@ -7,12 +7,13 @@ import pandas as pd
 import pyarrow as pa
 import pyarrow.parquet as pq
 from tqdm import tqdm
+from datasets import Features, Audio, Value
 
 
 SPLIT_NAMES = {
-    "valid": "valid",
-    "test": "test",
-    "train": "train",
+    "valid" : "valid",
+    "test"  : "test",
+    "train" : "train",
 }
 
 load_dotenv()
@@ -51,16 +52,32 @@ def build_parquet_rows(tsv_path, audio_root, split_name):
                 "speaker_id": speaker_id,
                 "transcript": transcript,
                 "audio_format": audio_path.suffix.lstrip(".").lower(),
-                "audio": audio_path.read_bytes(),
+                "audio": {
+                    "bytes": audio_path.read_bytes(),
+                    "path": f"{split_name}/{speaker_id}/{file_id}{audio_path.suffix}",
+                },
             }
         )
     return rows
 
 
+def get_features_schema():
+    return Features({
+        "file_id": Value("string"),
+        "speaker_id": Value("string"),
+        "transcript": Value("string"),
+        "audio_format": Value("string"),
+        "audio": Audio(),
+    })
+
+
 def estimate_row_size(row):
     # Approximate per-row bytes to keep shard sizes manageable.
+    audio_bytes = row.get("audio", {})
+    if isinstance(audio_bytes, dict):
+        audio_bytes = audio_bytes.get("bytes", b"")
     return (
-        len(row.get("audio", b""))
+        len(audio_bytes)
         + len(str(row.get("file_id", "")).encode("utf-8"))
         + len(str(row.get("speaker_id", "")).encode("utf-8"))
         + len(str(row.get("transcript", "")).encode("utf-8"))
@@ -69,7 +86,8 @@ def estimate_row_size(row):
 
 
 def write_rows_to_shard(rows, shard_path):
-    table = pa.Table.from_pylist(rows)
+    schema = get_features_schema()
+    table = pa.Table.from_pylist(rows, schema=schema.arrow_schema)
     shard_path.parent.mkdir(parents=True, exist_ok=True)
     pq.write_table(table, shard_path)
 
