@@ -70,8 +70,9 @@ If the dataset viewer still shows raw bytes, re-upload after regenerating the pa
 
 
 ## Citation
-Please cite the original paper whenever this dataset are being used:
+Please cite both 1) the original paper and 2) this work whenever this dataset are being used.
 
+**Original Paper**
 ```
 @inproceedings{kjartansson-etal-sltu2018,
     title = {{Crowd-Sourced Speech Corpora for Javanese, Sundanese,  Sinhala, Nepali, and Bangladeshi Bengali}},
@@ -83,4 +84,15 @@ Please cite the original paper whenever this dataset are being used:
     pages = {52--55},
     URL   = {http://dx.doi.org/10.21437/SLTU.2018-11}
   }
+```
+
+**This work**
+```
+@misc{ghimire2025slr54split,
+  title        = {Train/Test/Validation Split of Large Nepali ASR Training Data Set (SLR54)},
+  author       = {Rupak Raj Ghimire},
+  year         = {2025},
+  howpublished = {\url{https://github.com/rupakraj/slr54nepali-curated} and \url{https://huggingface.co/datasets/rughimire/slr54nepali-curated}},
+  note         = {GitHub repository / Hugging Face}
+}
 ```
