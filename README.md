@@ -22,7 +22,7 @@ Hugging face: [rughimire/slr54nepali-curated](https://huggingface.co/datasets/ru
 
 ## How to use?
 
-Todo
+Follow the notebook: [how to use](/how_to_use.ipynb)
 
 ## How to create Hugging Face Dataset?
 
